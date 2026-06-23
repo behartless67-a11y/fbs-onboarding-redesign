@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMMC-CCA Practice Quiz - Scenario-Based Questions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .progress-container {
+            background: #f0f0f0;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .quiz-content {
+            padding: 40px;
+        }
+
+        .question-container {
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .scenario {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .scenario h3 {
+            color: #2a5298;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .scenario p {
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .question {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 25px;
+        }
+
+        .options {
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateX(5px);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 1em;
+            color: #333;
+        }
+
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .explanation {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .explanation h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .explanation p {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .results {
+            text-align: center;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            margin: 30px auto;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3em;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .score-message {
+            font-size: 1.5em;
+            color: #1e3c72;
+            margin-bottom: 20px;
+        }
+
+        .score-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .score-details p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .review-list {
+            text-align: left;
+            margin-top: 30px;
+        }
+
+        .review-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .review-item.correct {
+            border-left-color: #28a745;
+        }
+
+        .review-item strong {
+            color: #1e3c72;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 CMMC-CCA Practice Quiz</h1>
+            <p>Scenario-Based Assessment Questions</p>
+        </div>
+
+        <div class="progress-container">
+            <span id="questionCounter">Question 1 of 20</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 5%"></div>
+            </div>
+            <span id="scoreCounter">Score: 0/0</span>
+        </div>
+
+        <div class="quiz-content">
+            <div id="quizQuestions"></div>
+
+            <div class="results" id="results">
+                <div class="score-circle" id="scoreCircle">0%</div>
+                <div class="score-message" id="scoreMessage"></div>
+                <div class="score-details">
+                    <p><strong>Correct Answers:</strong> <span id="correctCount">0</span></p>
+                    <p><strong>Incorrect Answers:</strong> <span id="incorrectCount">0</span></p>
+                    <p><strong>Passing Score (70%):</strong> <span id="passingScore">14/20</span></p>
+                    <p id="passStatus"></p>
+                </div>
+                <div class="review-list" id="reviewList"></div>
+                <div class="buttons">
+                    <button class="btn-primary" onclick="restartQuiz()">Retake Quiz</button>
+                </div>
+            </div>
+
+            <div class="buttons" id="navigationButtons">
+                <button class="btn-secondary" id="prevBtn" onclick="previousQuestion()">← Previous</button>
+                <button class="btn-primary" id="submitBtn" onclick="submitAnswer()" disabled>Submit Answer</button>
+                <button class="btn-primary" id="nextBtn" onclick="nextQuestion()" style="display: none;">Next Question →</button>
+                <button class="btn-primary" id="finishBtn" onclick="finishQuiz()" style="display: none;">Finish Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                scenario: "Cloud Infrastructure Assessment",
+                context: "Defense contractor XYZ Corp uses Amazon Web Services (AWS) to store and process CUI data. They use EC2 instances, S3 buckets, and RDS databases. During your pre-assessment interview, the IT director mentions they rely on AWS's FedRAMP authorization and have not implemented additional encryption beyond AWS defaults.",
+                question: "As the CCA conducting this assessment, what is your PRIMARY concern?",
+                options: [
+                    "AWS does not have proper FedRAMP authorization",
+                    "The organization must implement customer-managed encryption keys for CUI data at rest",
+                    "The organization is solely responsible for CUI protection regardless of AWS's FedRAMP status",
+                    "EC2 instances cannot be used for CUI storage under any circumstances"
+                ],
+                correct: 2,
+                explanation: "While AWS may have FedRAMP authorization, the CMMC framework requires that the Organization Seeking Certification (OSC) remains responsible for implementing and managing security controls for CUI. The contractor cannot solely rely on the Cloud Service Provider's certifications - they must implement their own controls, including encryption, access management, and monitoring. This is a shared responsibility model where both parties have distinct obligations."
+            },
+            {
+                scenario: "Remote Access Security",
+                context: "An aerospace contractor allows employees to access CUI systems remotely via VPN. During the assessment, you observe that the VPN uses strong encryption (AES-256), but multi-factor authentication (MFA) is only required for privileged accounts. Regular users authenticate with username and password only.",
+                question: "What control deficiency should you document?",
+                options: [
+                    "VPN encryption strength is insufficient",
+                    "IA-2(1) - Network access to privileged accounts requires MFA, but non-privileged accounts accessing CUI also require MFA",
+                    "The organization should prohibit all remote access to CUI",
+                    "Password-only authentication is acceptable for non-privileged users accessing CUI remotely"
+                ],
+                correct: 1,
+                explanation: "NIST SP 800-171 control IA-2(1) requires multi-factor authentication for network access to privileged accounts. However, IA-2(2) extends this requirement to non-privileged accounts as well when accessing CUI systems remotely. The contractor has a gap in their remote access controls by not implementing MFA for all users accessing CUI, not just privileged accounts."
+            },
+            {
+                scenario: "Organizational Scoping - Subsidiaries",
+                context: "Defense contractor ABC Corp has three wholly-owned subsidiaries: SubCo A (handles CUI, separate IT infrastructure), SubCo B (handles CUI, shares parent's IT systems), and SubCo C (no CUI, completely separate operations). The parent company wants a single CMMC assessment to cover all entities.",
+                question: "What is the correct scoping approach?",
+                options: [
+                    "All three subsidiaries and the parent must be in a single assessment scope",
+                    "SubCo A requires separate assessment; SubCo B can be included with parent; SubCo C is out of scope",
+                    "Only the parent company needs assessment since it owns all subsidiaries",
+                    "Each subsidiary must have separate assessments regardless of IT infrastructure"
+                ],
+                correct: 1,
+                explanation: "Scoping depends on operational independence and IT infrastructure separation. SubCo A has separate IT infrastructure and handles CUI, so it requires a separate assessment boundary. SubCo B shares the parent's IT systems and handles CUI, so it can be included in the parent's assessment scope. SubCo C doesn't handle CUI at all, so it's outside the CMMC scope entirely. This demonstrates the importance of understanding both logical boundaries (IT systems) and organizational boundaries (legal entities) in scoping."
+            },
+            {
+                scenario: "Audit Log Review",
+                context: "During evidence collection, you review the contractor's audit logging practices. They have configured logging on all CUI systems and logs are retained for 90 days. However, when you ask to see evidence of log review and analysis, the security team explains they only review logs when investigating reported incidents.",
+                question: "Which NIST SP 800-171 control is NOT being met?",
+                options: [
+                    "AU-2 (Auditable Events)",
+                    "AU-6 (Audit Review, Analysis, and Reporting)",
+                    "AU-11 (Audit Record Retention)",
+                    "AU-12 (Audit Generation)"
+                ],
+                correct: 1,
+                explanation: "AU-6 requires organizations to review and analyze information system audit records regularly for indications of inappropriate or unusual activity. Reactive review (only during incidents) does not satisfy this control. The organization must implement proactive, periodic review of audit logs. They are meeting AU-2 (events are being logged), AU-11 (90-day retention meets minimum requirements), and AU-12 (audit generation is working), but failing AU-6 by not conducting regular reviews."
+            },
+            {
+                scenario: "System Security Plan Documentation",
+                context: "You are reviewing a contractor's System Security Plan (SSP). The document is well-written and describes security controls in detail. However, you notice that several controls marked as 'Implemented' have no corresponding evidence in the document library, and the SSP was last updated 18 months ago despite the contractor implementing a new cloud backup solution 6 months ago.",
+                question: "What is your assessment approach?",
+                options: [
+                    "Accept the SSP as adequate since it is well-written and detailed",
+                    "Document findings for missing evidence and outdated SSP; require updates before completing assessment",
+                    "SSP age is not relevant as long as controls are currently implemented",
+                    "Recommend the contractor restart the entire CMMC process"
+                ],
+                correct: 1,
+                explanation: "The SSP must be accurate, current, and supported by evidence. An 18-month-old SSP that doesn't reflect current architecture (new cloud backup) indicates the document is not being maintained per PL-2 requirements. Additionally, claims of implemented controls without supporting evidence cannot be verified. The CCA should document these as findings, require the SSP to be updated to reflect current state, and ensure all claimed implementations have corresponding evidence before making a compliance determination."
+            },
+            {
+                scenario: "Incident Response Testing",
+                context: "A contractor has a comprehensive Incident Response Plan that covers detection, analysis, containment, eradication, and recovery. The plan was developed 2 years ago by a consulting firm. When you ask about testing, the IT manager explains they've never had a real incident, so they haven't needed to use the plan yet.",
+                question: "What control requirement is not being satisfied?",
+                options: [
+                    "IR-4 (Incident Handling) - because they haven't responded to any incidents",
+                    "IR-3 (Incident Response Testing) - plans must be tested even without real incidents",
+                    "IR-1 (Incident Response Policy and Procedures) - the plan is too old",
+                    "No deficiency - testing is only required after actual incidents occur"
+                ],
+                correct: 1,
+                explanation: "IR-3 requires organizations to test incident response capabilities. This testing should occur through tabletop exercises, simulations, or actual testing of response procedures - it does not require waiting for real incidents. An untested plan is not a validated plan. The contractor may have good documentation (IR-1) and could properly handle incidents when they occur (IR-4), but they are failing IR-3 by not proactively testing their capabilities. Regular testing is essential to ensure the plan is effective and staff are trained."
+            },
+            {
+                scenario: "Media Sanitization Practices",
+                context: "During a facility walkthrough, you observe a storage room containing old hard drives awaiting disposal. The IT technician explains they wipe drives using the manufacturer's 'secure erase' function, then physically destroy the drives with a hammer before disposal. They keep records of serial numbers and destruction dates.",
+                question: "Does this practice satisfy NIST SP 800-171 media sanitization requirements?",
+                options: [
+                    "No - hammer destruction is not an approved sanitization method",
+                    "Yes - combining secure erase with physical destruction exceeds requirements",
+                    "No - they must use DoD 5220.22-M 7-pass wipe method",
+                    "Partially - secure erase is sufficient; physical destruction is unnecessary"
+                ],
+                correct: 1,
+                explanation: "The contractor is properly implementing MP-6 (Media Sanitization). They are using a combination of cryptographic erase/secure wipe (acceptable for SSDs and modern drives) and physical destruction, which is defense-in-depth and exceeds minimum requirements. They also maintain sanitization records. NIST SP 800-88 Rev. 1 (referenced by 800-171) allows for various sanitization methods including clear, purge, and destroy. Their approach of both purging (secure erase) and destroying (physical destruction) is compliant and recommended for CUI media."
+            },
+            {
+                scenario: "Configuration Management",
+                context: "A contractor maintains baseline configurations for all CUI systems documented in their configuration management database (CMDB). During the assessment, you discover that while baselines exist and are reviewed quarterly, the organization does not have a formal change control process. System administrators make security-relevant changes as needed, documenting them in ticket system after completion.",
+                question: "Which control family requirement is not being met?",
+                options: [
+                    "CM-2 (Baseline Configuration) - baselines are inadequate",
+                    "CM-3 (Configuration Change Control) - changes must be approved before implementation",
+                    "CM-8 (Information System Component Inventory) - CMDB is not sufficient",
+                    "CM-6 (Configuration Settings) - security settings are not enforced"
+                ],
+                correct: 1,
+                explanation: "CM-3 requires organizations to determine the types of changes that are configuration-controlled, review proposed changes, approve or disapprove changes with explicit consideration for security impacts, document decisions, and implement approved changes. The contractor has good baseline documentation (CM-2) but is failing CM-3 by making changes first and documenting after. A formal change control board (CCB) or approval process must exist before security-relevant changes are implemented, especially for CUI environments."
+            },
+            {
+                scenario: "Personnel Screening",
+                context: "An engineering firm conducts background checks on all employees before they are granted access to CUI. The background checks include criminal history and employment verification. However, for contractors and temporary workers who need CUI access, the company relies on the staffing agency's screening, accepting their certification that checks were completed.",
+                question: "What is the compliance concern?",
+                options: [
+                    "This approach is acceptable as long as the staffing agency is certified",
+                    "PS-3 requires the organization to conduct screening commensurate with risk for ALL personnel with CUI access",
+                    "Contractors and temporary workers should never have CUI access",
+                    "Background checks are only required for privileged users, not regular workers"
+                ],
+                correct: 1,
+                explanation: "PS-3 (Personnel Screening) requires organizations to screen individuals before authorizing access to CUI systems commensurate with the risk. The organization cannot delegate this responsibility to a third party (staffing agency) - they must ensure appropriate screening is conducted and documented. While they can accept results from a staffing agency's background check, they must verify it meets their requirements and risk level. Simply accepting a certification without validation does not satisfy the control."
+            },
+            {
+                scenario: "Wireless Network Security",
+                context: "A manufacturing contractor has two wireless networks: 'CompanySecure' for employees (WPA3-Enterprise with 802.1X authentication) and 'CompanyGuest' for visitors (WPA2-PSK with a password posted at reception). The guest network is on a separate VLAN and cannot access CUI systems. However, the networks use the same physical access points.",
+                question: "From a CMMC perspective, how should this be assessed?",
+                options: [
+                    "Failed - guest and CUI networks cannot share physical access points",
+                    "Acceptable if proper network segmentation is verified and guest network is out of scope",
+                    "Failed - WPA2 is not sufficient even for guest network",
+                    "Failed - posting guest password at reception is a security violation"
+                ],
+                correct: 1,
+                explanation: "This is acceptable if properly implemented. The key is that the guest network is logically separated (different VLAN), cannot reach CUI systems (AC-3 Access Enforcement, SC-7 Boundary Protection), and is not processing CUI. The physical sharing of access points is not a concern if logical separation is properly implemented. The CCA should verify the network segmentation through technical testing, confirm no cross-VLAN traffic is possible, and document that the guest network is outside the assessment boundary. The guest password policy is irrelevant to the CUI environment security."
+            },
+            {
+                scenario: "Vulnerability Scanning",
+                context: "A contractor uses Tenable Nessus to scan all CUI systems monthly for vulnerabilities. Scans identify high-risk vulnerabilities which are remediated within 30 days. However, when reviewing scan results from 3 months ago, you notice several medium-risk vulnerabilities that remain unpatched. The IT team explains they prioritize high-risk items due to limited resources.",
+                question: "What is your assessment finding?",
+                options: [
+                    "Compliant - RA-5 only requires scanning, not remediation",
+                    "Non-compliant - all vulnerabilities must be remediated within 30 days",
+                    "Compliant - risk-based prioritization is acceptable under RA-5",
+                    "Non-compliant - scanning must be weekly, not monthly"
+                ],
+                correct: 2,
+                explanation: "RA-5 requires vulnerability scanning and remediation of vulnerabilities in accordance with risk assessments. Risk-based prioritization is explicitly allowed and recommended. The contractor is performing regular scans (monthly is acceptable for many environments) and has a documented risk-based remediation approach. High-risk items within 30 days demonstrates reasonable risk management. However, the CCA should verify that the organization has documented their risk-based prioritization approach, medium-risk items are being tracked and have planned remediation dates, and this approach is consistent with their risk management strategy (RA-3)."
+            },
+            {
+                scenario: "Third-Party Service Provider",
+                context: "A defense contractor uses a Managed Security Service Provider (MSSP) to monitor their CUI environment 24/7 using a SIEM tool. The MSSP has access to all security logs but not to the CUI data itself. The contractor has an NDA with the MSSP but no formal agreement addressing CMMC requirements or federal data protection.",
+                question: "What contractual control is missing?",
+                options: [
+                    "None - NDA is sufficient for MSSP relationships",
+                    "SR-2 and SR-3 - formal agreements requiring equivalent protection for external service providers",
+                    "The MSSP should not have any access to contractor systems",
+                    "MSSP must achieve their own CMMC certification"
+                ],
+                correct: 1,
+                explanation: "SR-2 (Supply Chain Risk Management Plan) and SR-3 (Supply Chain Controls and Processes) require organizations to include security requirements in acquisition contracts with external service providers. The contractor must have formal agreements ensuring the MSSP provides equivalent security protection for federal information. This includes requirements for incident notification, security monitoring, data handling, and compliance with NIST SP 800-171. An NDA only addresses confidentiality, not the full range of security controls. The MSSP doesn't need their own CMMC certification, but must meet equivalent security requirements through contract."
+            },
+            {
+                scenario: "Physical Access Control",
+                context: "A contractor's facility has a card reader system at the main entrance requiring badge access. The server room containing CUI systems has an additional biometric (fingerprint) scanner. During the assessment, you notice the server room door is propped open with a chair because IT staff frequently enter for maintenance. The access logs show proper badge/biometric use when the door is closed.",
+                question: "What is the compliance status of PE-3 (Physical Access Control)?",
+                options: [
+                    "Compliant - controls exist and logs show proper authentication",
+                    "Non-compliant - door propped open bypasses implemented controls",
+                    "Compliant - maintenance activities justify keeping door open",
+                    "Partially compliant - biometric is sufficient even if door is open"
+                ],
+                correct: 1,
+                explanation: "Physical access controls must be consistently enforced. Having the door propped open completely bypasses the implemented controls (badge + biometric), allowing unauthorized individuals to potentially enter without authentication. This is a significant deficiency in PE-3. The organization needs to either ensure the door remains closed when not actively in use, implement compensating controls (continuous monitoring, escort requirements), or address the root cause (frequent entry needs). Good logs don't matter if the control can be trivially bypassed. This is an example of a 'paper compliance' issue where documented controls exist but are not effectively enforced."
+            },
+            {
+                scenario: "Mobile Device Management",
+                context: "Employees use company-issued laptops to access CUI while traveling. The laptops have full-disk encryption (BitLocker), run endpoint protection software, and require VPN for remote access. However, the company does not manage or control personal smartphones that employees use to check work email, which may contain CUI in email attachments.",
+                question: "What control gap exists?",
+                options: [
+                    "No gap - laptops have sufficient controls",
+                    "AC-20 (Use of External Systems) and MP-7 (Media Use) - mobile devices accessing CUI must be managed",
+                    "Personal devices should be prohibited entirely",
+                    "Email never contains CUI so smartphones are not in scope"
+                ],
+                correct: 1,
+                explanation: "If email can contain CUI (even in attachments), then smartphones accessing that email become part of the CUI environment and must be controlled. AC-20 addresses use of external information systems, and MP-7 covers portable storage. The contractor needs either: (1) MDM solution controlling personal devices accessing corporate email, (2) containerization solution (separate work profile), (3) company-issued smartphones only, or (4) documented policy prohibiting CUI in email with technical controls to enforce it. Simply hoping employees won't download CUI attachments is not a control. This is a common gap as organizations focus on endpoints while overlooking mobile devices."
+            },
+            {
+                scenario: "Password Policy Enforcement",
+                context: "A contractor's password policy requires 12-character minimum length, complexity (upper, lower, number, special), and 90-day expiration. However, during the assessment you discover the Active Directory Group Policy is configured for 8-character minimum length. The IT manager explains they 'trust employees to follow the policy' and the 8-character minimum is just a fallback.",
+                question: "How should this be assessed?",
+                options: [
+                    "Compliant - documented policy is what matters",
+                    "Non-compliant - technical controls must enforce documented policy (IA-5)",
+                    "Compliant - 8 characters is acceptable if complex",
+                    "Policy should be changed to match implementation"
+                ],
+                correct: 1,
+                explanation: "IA-5 (Authenticator Management) requires enforcement of password strength requirements. A documented policy that is not technically enforced does not satisfy the control. The technical control (AD GPO) is the actual enforcement mechanism, and it's configured weaker than the documented policy. This creates a compliance gap. The CCA should document this as non-compliant for IA-5 and require either: (1) update GPO to match policy (12 characters), or (2) if they want to use 8 characters, update the policy to reflect reality. There must be alignment between documented requirements and technical enforcement."
+            },
+            {
+                scenario: "Continuous Monitoring",
+                context: "A contractor has implemented security controls and conducted an initial self-assessment 1 year ago. They re-assess all controls annually. When asked about continuous monitoring (CA-7), the security manager states they monitor antivirus alerts daily and review access logs weekly, but they do not have ongoing monitoring of all security controls between annual assessments.",
+                question: "Does this meet CA-7 requirements?",
+                options: [
+                    "Yes - annual assessment is sufficient",
+                    "No - CA-7 requires ongoing monitoring of security controls, not just annual point-in-time assessment",
+                    "Yes - monitoring antivirus and access logs satisfies CA-7",
+                    "No - monitoring must be real-time, not weekly"
+                ],
+                correct: 1,
+                explanation: "CA-7 requires ongoing monitoring of security controls to ensure continued effectiveness. Annual assessment (CA-2) is different from continuous monitoring (CA-7). The contractor needs an ongoing process that monitors security controls throughout the year, not just at assessment time. This doesn't mean every control needs real-time monitoring, but there should be a strategy for regularly checking that controls remain effective. Examples include: quarterly vulnerability scans (RA-5), monthly configuration audits (CM-3), periodic penetration testing, automated compliance checking, security metrics tracking. Weekly access log reviews and AV monitoring are good practices but don't constitute comprehensive continuous monitoring of all security controls."
+            },
+            {
+                scenario: "Cryptographic Key Management",
+                context: "A contractor uses AES-256 encryption for CUI data at rest on file servers. The encryption keys are stored in a separate key management system with restricted access. However, when you ask about key rotation, the IT team explains they generated the keys 5 years ago when the system was deployed and have never rotated them because 'it's complex and might break things.'",
+                question: "What is the NIST SP 800-171 compliance concern?",
+                options: [
+                    "AES-256 is not strong enough for CUI",
+                    "SC-12 (Cryptographic Key Management) requires key rotation and lifecycle management",
+                    "No concern - if keys are not compromised, rotation is unnecessary",
+                    "5 years is acceptable for symmetric keys"
+                ],
+                correct: 1,
+                explanation: "SC-12 requires cryptographic key management including generation, distribution, storage, access, and destruction. This includes key rotation as part of the key lifecycle. While NIST doesn't mandate a specific rotation interval for symmetric keys, 5 years with no rotation plan is problematic. The bigger concern is the statement 'might break things' - this indicates they don't have a tested key rotation procedure. The CCA should require the organization to: (1) establish a documented key rotation policy based on risk assessment, (2) develop and test key rotation procedures, and (3) implement periodic rotation. The complexity of rotation should have been addressed in system design."
+            },
+            {
+                scenario: "Malware Protection",
+                context: "All contractor workstations and servers run Crowdstrike antivirus with real-time scanning and automatic daily updates. However, a Linux-based industrial control system (ICS) used for manufacturing equipment that occasionally generates CUI data logs does not have antivirus installed. The OT manager explains the vendor doesn't support antivirus on this legacy system and it's network-isolated.",
+                question: "How should this be assessed under SI-3 (Malicious Code Protection)?",
+                options: [
+                    "Non-compliant - all systems processing CUI must have antivirus",
+                    "Assess if network isolation and compensating controls provide equivalent protection",
+                    "Exempt - OT/ICS systems are not subject to CMMC",
+                    "Compliant - vendor limitations justify the exception"
+                ],
+                correct: 1,
+                explanation: "SI-3 requires malicious code protection, but allows for compensating controls when standard protections are not technically feasible. The CCA should assess: (1) Is the system truly network isolated? Verify with technical testing. (2) What compensating controls exist? (application whitelisting, strict change control, file integrity monitoring, network monitoring). (3) Is CUI data properly protected through other means? (encryption, access controls). (4) Have they documented the risk acceptance? If strong compensating controls and isolation exist, this could be compliant. If not, it's a deficiency. Simply stating vendor limitations is not sufficient - the organization must demonstrate equivalent security through alternative means."
+            },
+            {
+                scenario: "System and Communications Protection",
+                context: "A contractor's CUI systems communicate over the internal LAN without encryption because 'it's all inside our firewall.' External communications (Internet, VPN) use TLS 1.2 or higher. When you mention SC-8 (Transmission Confidentiality and Integrity), the network engineer explains internal encryption would impact performance and isn't necessary on a trusted network.",
+                question: "What is your assessment?",
+                options: [
+                    "Compliant - encryption is only required for external communications",
+                    "Non-compliant - SC-8 requires protection of CUI in transit, including on internal networks",
+                    "Compliant - internal networks behind firewalls are considered secure",
+                    "Performance concerns justify the exemption"
+                ],
+                correct: 1,
+                explanation: "SC-8 requires protecting the confidentiality and integrity of transmitted CUI. This applies to internal networks as well, not just external. The 'trusted network' assumption is a flawed security model - insider threats, compromised devices, and lateral movement attacks all occur on internal networks. The organization should implement encryption for CUI transmission even internally through: (1) TLS/SSL for web applications, (2) IPsec for network-level encryption, (3) encrypted file transfer protocols, (4) encrypted database connections. Performance concerns must be balanced with security requirements, but cannot simply excuse non-compliance. If performance is truly critical, they need compensating controls and risk acceptance documentation, not just an assumption that firewalls provide sufficient protection."
+            },
+            {
+                scenario: "Assessment Scope Boundary",
+                context: "During scope definition, a contractor explains they have one network with three segments: (1) Engineering workstations processing CUI, (2) Manufacturing floor systems (no CUI), and (3) Corporate office systems (email, HR, finance - no CUI). All segments are on the same Active Directory domain and share the same IT support team. They want the assessment scope to only include segment 1.",
+                question: "As the CCA, what is your scoping determination?",
+                options: [
+                    "Accept their proposed scope - only segment 1 contains CUI",
+                    "Expand scope to include AD infrastructure and any systems providing security services to segment 1",
+                    "All three segments must be in scope since they share a domain",
+                    "Require complete network segregation before assessment can proceed"
+                ],
+                correct: 1,
+                explanation: "Scoping must include not just CUI assets, but also 'Security Protection Assets' - systems that provide security services to the CUI environment. The shared Active Directory is a Security Protection Asset because it provides authentication, authorization, and policy enforcement for the CUI systems. It must be in scope. Additionally, any other shared infrastructure (DNS, DHCP, backup systems, monitoring tools, patch management) serving the CUI environment must be assessed. However, manufacturing and corporate segments that don't process CUI and don't provide security services can remain out of scope. The key is understanding the logical dependencies and security service relationships, not just where CUI data resides."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let correctAnswers = 0;
+
+        function initQuiz() {
+            renderQuestion();
+            updateProgress();
+        }
+
+        function renderQuestion() {
+            const container = document.getElementById('quizQuestions');
+            const q = questions[currentQuestion];
+
+            container.innerHTML = `
+                <div class="question-container active">
+                    <div class="question-number">Question ${currentQuestion + 1} of ${questions.length}</div>
+
+                    <div class="scenario">
+                        <h3>📋 Scenario: ${q.scenario}</h3>
+                        <p>${q.context}</p>
+                    </div>
+
+                    <div class="question">${q.question}</div>
+
+                    <div class="options">
+                        ${q.options.map((option, index) => `
+                            <div class="option" onclick="selectOption(${index})">
+                                <input type="radio" name="answer" id="option${index}" value="${index}">
+                                <label for="option${index}">${option}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="explanation" id="explanation">
+                        <h4>💡 Explanation:</h4>
+                        <p>${q.explanation}</p>
+                    </div>
+                </div>
+            `;
+
+            // Restore previous answer if exists
+            if (userAnswers[currentQuestion] !== undefined) {
+                selectOption(userAnswers[currentQuestion], true);
+                showExplanation();
+            }
+
+            updateButtons();
+        }
+
+        function selectOption(index, skipEnable = false) {
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.transform = '';
+                opt.style.borderColor = '#e0e0e0';
+            });
+
+            const selectedOption = document.querySelectorAll('.option')[index];
+            selectedOption.style.borderColor = '#667eea';
+            selectedOption.style.background = '#f0f4ff';
+
+            document.getElementById(`option${index}`).checked = true;
+
+            if (!skipEnable) {
+                document.getElementById('submitBtn').disabled = false;
+            }
+        }
+
+        function submitAnswer() {
+            const selected = document.querySelector('input[name="answer"]:checked');
+            if (!selected) return;
+
+            const answer = parseInt(selected.value);
+            userAnswers[currentQuestion] = answer;
+
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+
+            options.forEach((option, index) => {
+                option.onclick = null;
+                if (index === q.correct) {
+                    option.classList.add('correct');
+                } else if (index === answer && answer !== q.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (answer === q.correct) {
+                correctAnswers++;
+            }
+
+            showExplanation();
+            updateProgress();
+
+            document.getElementById('submitBtn').style.display = 'none';
+
+            if (currentQuestion < questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'block';
+            } else {
+                document.getElementById('finishBtn').style.display = 'block';
+            }
+        }
+
+        function showExplanation() {
+            document.getElementById('explanation').classList.add('show');
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'block' : 'none';
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'none';
+            document.getElementById('submitBtn').disabled = true;
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            document.getElementById('scoreCounter').textContent = `Score: ${correctAnswers}/${userAnswers.length}`;
+        }
+
+        function finishQuiz() {
+            const percentage = Math.round((correctAnswers / questions.length) * 100);
+            const passed = percentage >= 70;
+
+            document.getElementById('quizQuestions').style.display = 'none';
+            document.getElementById('navigationButtons').style.display = 'none';
+            document.getElementById('results').classList.add('show');
+
+            document.getElementById('scoreCircle').textContent = percentage + '%';
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('incorrectCount').textContent = questions.length - correctAnswers;
+
+            let message = '';
+            if (percentage >= 90) {
+                message = '🎉 Outstanding! You\'re well-prepared for the CCA exam!';
+            } else if (percentage >= 80) {
+                message = '👍 Great job! You have a strong understanding of CMMC concepts.';
+            } else if (percentage >= 70) {
+                message = '✅ Good work! You passed, but review the missed questions.';
+            } else {
+                message = '📚 Keep studying! Review the study guide and retake the quiz.';
+            }
+
+            document.getElementById('scoreMessage').textContent = message;
+            document.getElementById('passStatus').innerHTML = passed
+                ? '<strong style="color: #28a745;">✅ PASSED - You meet the 70% threshold!</strong>'
+                : '<strong style="color: #dc3545;">❌ NOT PASSED - More study needed (70% required)</strong>';
+
+            // Generate review list
+            const reviewList = document.getElementById('reviewList');
+            let reviewHTML = '<h3>📊 Question Review:</h3>';
+
+            questions.forEach((q, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer === q.correct;
+
+                reviewHTML += `
+                    <div class="review-item ${isCorrect ? 'correct' : ''}">
+                        <strong>Q${index + 1}: ${q.scenario}</strong><br>
+                        Your answer: ${q.options[userAnswer]}<br>
+                        ${!isCorrect ? `Correct answer: ${q.options[q.correct]}<br>` : ''}
+                        <span style="color: ${isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                            ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                        </span>
+                    </div>
+                `;
+            });
+
+            reviewList.innerHTML = reviewHTML;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = [];
+            correctAnswers = 0;
+
+            document.getElementById('quizQuestions').style.display = 'block';
+            document.getElementById('navigationButtons').style.display = 'flex';
+            document.getElementById('results').classList.remove('show');
+
+            initQuiz();
+        }
+
+        // Initialize quiz on load
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
